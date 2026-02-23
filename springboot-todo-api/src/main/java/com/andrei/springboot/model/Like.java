@@ -2,6 +2,8 @@ package com.andrei.springboot.model;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -11,6 +13,11 @@ import java.util.UUID;
 public class Like {
 
     @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+        name = "UUID",
+        strategy = "org.hibernate.id.UUIDGenerator"
+    )
     @Column(name = "id")
     private UUID id;
 
