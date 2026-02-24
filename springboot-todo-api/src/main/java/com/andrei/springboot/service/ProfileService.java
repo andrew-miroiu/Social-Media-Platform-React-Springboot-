@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ProfileService {
     List<ProfileResponseDTO> getAllProfiles();
+    ProfileResponseDTO getOwnProfile();
 }

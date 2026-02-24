@@ -38,4 +38,19 @@ public class ProfileServiceImpl implements ProfileService {
 
 
     }
+
+    public ProfileResponseDTO getOwnProfile(){
+        CustomUserDetails userDetails =(CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        UUID userId = userDetails.getId();
+
+        Profile profile = profileRepository.findProfileById(userId);
+
+        return new ProfileResponseDTO(
+                profile.getId(),
+                profile.getUsername(),
+                profile.getAvatarUrl(),
+                profile.getCreatedAt()
+        );
+    }
 }

@@ -24,4 +24,9 @@ public class ProfileController {
         return profileService.getAllProfiles();
     }
 
+    @GetMapping("/getOwnProfile")
+    public ProfileResponseDTO getOwnProfile(){
+        return profileService.getOwnProfile();
+    }
+
 }
