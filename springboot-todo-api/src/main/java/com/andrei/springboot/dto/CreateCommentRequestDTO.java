@@ -1,10 +1,14 @@
 package com.andrei.springboot.dto;
 
 import java.util.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class CreateCommentRequestDTO {
 
     private UUID postId;
+
+    @NotBlank
     private String text;
 
      public UUID getPostId(){
