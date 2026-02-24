@@ -16,13 +16,14 @@ public class PostWithCountsDTO {
     private String username;
     private String avatarUrl;
 
-    private Long likeCount; // Numărul de like-uri
-    //private boolean liked;
+    private Long likeCount;
+    private Long commentCount;
+    private boolean liked;
 
     public PostWithCountsDTO(UUID postId, String text, String imageUrl, String videoUrl,
                              OffsetDateTime createdAt, OffsetDateTime updatedAt,
                              UUID userId, String username, String avatarUrl,
-                             Long likeCount) {
+                             Long likeCount, Long commentCount, boolean liked) {
         this.postId = postId;
         this.text = text;
         this.imageUrl = imageUrl;
@@ -33,7 +34,8 @@ public class PostWithCountsDTO {
         this.username = username;
         this.avatarUrl = avatarUrl;
         this.likeCount = likeCount;
-        //this.liked = liked;
+        this.commentCount = commentCount;
+        this.liked = liked;
     }
 
     // Gettere și settere
@@ -47,7 +49,8 @@ public class PostWithCountsDTO {
     public String getUsername() { return username; }
     public String getAvatarUrl() { return avatarUrl; }
     public Long getLikeCount() { return likeCount; }
-    //public boolean getLiked() {return liked;}
+    public Long getCommentCount() { return commentCount; }
+    public boolean getLiked() {return liked;}
 
     public void setPostId(UUID postId) { this.postId = postId; }
     public void setText(String text) { this.text = text; }
@@ -59,5 +62,6 @@ public class PostWithCountsDTO {
     public void setUsername(String username) { this.username = username; }
     public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
     public void setLikeCount(Long likeCount) { this.likeCount = likeCount; }
-    //public void setLikeCount(boolean liked) { this.liked = liked; }
+    public void setCommentCount(Long commentCount) { this.commentCount = commentCount; }
+    public void setLikeCount(boolean liked) { this.liked = liked; }
 }

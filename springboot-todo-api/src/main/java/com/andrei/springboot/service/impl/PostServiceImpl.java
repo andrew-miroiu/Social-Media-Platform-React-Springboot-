@@ -102,7 +102,11 @@ public class PostServiceImpl implements PostService {
    @Override
     public List<PostWithCountsDTO> getPostsWithCounts() {
 
-        List<Object[]> results = postRepository.findAllPostsWithCountsNative();
+        CustomUserDetails userDetails =(CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String userId = userDetails.getId().toString();
+        
+        List<Object[]> results = postRepository.findAllPostsWithCountsNative(userId);
         List<PostWithCountsDTO> dtos = new ArrayList<>();
 
         for (Object[] row : results) {
@@ -117,7 +121,9 @@ public class PostServiceImpl implements PostService {
                 (UUID) row[6],
                 (String) row[7], // username
                 (String) row[8], // avatarUrl
-                ((Number) row[9]).longValue() // likeCount
+                ((Number) row[9]).longValue(), // likeCount
+                ((Number) row[10]).longValue(),
+                ((Boolean) row[11])
             ));
         }
 
