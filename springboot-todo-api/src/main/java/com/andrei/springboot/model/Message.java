@@ -1,5 +1,13 @@
 package com.andrei.springboot.model;
 
+import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
 @Entity
 @Table(name = "messages")
 public class Message {
