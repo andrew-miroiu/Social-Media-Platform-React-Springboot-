@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,5 +39,16 @@ public class PostController {
     @GetMapping("/{id}")
     public List<PostResponseDTO> getPostsByUser(@PathVariable String id) {
         return postService.getPostsByUser(id);
+    }
+
+    @PostMapping
+    public ResponseEntity<PostResponseDTO> createPost(
+            @RequestParam("content") String content,
+            @RequestParam(value = "file", required = false) MultipartFile file
+    ) throws Exception {
+
+        PostResponseDTO dto = postService.createPost(content, file);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 }

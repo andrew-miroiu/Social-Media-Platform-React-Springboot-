@@ -10,6 +10,8 @@ import com.andrei.springboot.service.PostService;
 import com.andrei.springboot.security.CustomUserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.andrei.springboot.service.StorageService;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +27,12 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final ProfileRepository profileRepository;
+    private final StorageService storageService;
 
-    public PostServiceImpl(PostRepository postRepository, ProfileRepository profileRepository) {
+    public PostServiceImpl(PostRepository postRepository, ProfileRepository profileRepository, StorageService storageService) {
         this.postRepository = postRepository;
         this.profileRepository = profileRepository;
+        this.storageService = storageService;
     }
 
     @Override
@@ -128,5 +132,58 @@ public class PostServiceImpl implements PostService {
         }
 
         return dtos;
+    }
+
+    @Override
+    public PostResponseDTO createPost(String content, MultipartFile file) throws Exception {
+
+        String imageUrl = null;
+        String videoUrl = null;
+
+        if (file != null && !file.isEmpty()) {
+
+            String publicUrl = storageService.uploadFile(file);
+
+            if (file.getContentType().startsWith("image/")) {
+                imageUrl = publicUrl;
+            } else if (file.getContentType().startsWith("video/")) {
+                videoUrl = publicUrl;
+            }
+        }
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getPrincipal();
+
+        String userId = userDetails.getId().toString();
+
+        Post post = new Post();
+        post.setId(UUID.randomUUID());
+        post.setText(content);
+        post.setImageUrl(imageUrl);
+        post.setVideoUrl(videoUrl);
+        post.setUserId(userId);
+        post.setCreatedAt(OffsetDateTime.now());
+        post.setUpdatedAt(OffsetDateTime.now());
+
+        Post saved = postRepository.save(post);
+
+        Profile profile =
+                profileRepository.findById(UUID.fromString(userId))
+                        .orElse(null);
+
+        return new PostResponseDTO(
+                saved.getId(),
+                saved.getText(),
+                saved.getImageUrl(),
+                saved.getVideoUrl(),
+                saved.getCreatedAt(),
+                saved.getUpdatedAt(),
+                profile != null ? profile.getId().toString() : null,
+                profile != null ? profile.getUsername() : "Unknown",
+                profile != null ? profile.getAvatarUrl() : null
+        );
     }
 }
