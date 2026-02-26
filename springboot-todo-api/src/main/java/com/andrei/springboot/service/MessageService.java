@@ -9,4 +9,5 @@ import java.util.UUID;
 @Service
 public interface MessageService {
     List<MessageResponseDTO> getMessagesByConversationId(UUID conversationId);
+    MessageResponseDTO sendMessage(UUID conversationId, UUID senderId, String content);
 }
