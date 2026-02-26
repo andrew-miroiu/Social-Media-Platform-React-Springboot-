@@ -3,8 +3,6 @@ package com.andrei.springboot.model;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
-
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -21,23 +19,24 @@ public class Message {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "conversation_id")
-    private UUID conversationId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "conversation_id", nullable = false)
+    private Conversation conversation;
 
-    @Column(name = "sender_id")
+    @Column(name = "sender_id", nullable = false)
     private UUID senderId;
 
-    @Column(name = "content")
+    @Column(name = "content", nullable = false)
     private String content;
 
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;
 
     public Message() {}
 
-    public Message(UUID conversationId, UUID senderId, String content) {
-        this.conversationId = conversationId;
+    public Message(Conversation conversation, UUID senderId, String content) {
+        this.conversation = conversation;
         this.senderId = senderId;
         this.content = content;
     }
@@ -46,16 +45,12 @@ public class Message {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public Conversation getConversation() {
+        return conversation;
     }
 
-    public UUID getConversationId() {
-        return conversationId;
-    }
-
-    public void setConversationId(UUID conversationId) {
-        this.conversationId = conversationId;
+    public void setConversation(Conversation conversation) {
+        this.conversation = conversation;
     }
 
     public UUID getSenderId() {
@@ -77,9 +72,4 @@ public class Message {
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
-
-    public void setCreatedAt(OffsetDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
 }
