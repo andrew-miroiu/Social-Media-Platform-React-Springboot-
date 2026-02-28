@@ -10,7 +10,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-@Service
+@Service("storageService")
 public class SupabaseStorageServiceImpl implements StorageService {
 
     @Value("${supabase.url}")
@@ -54,5 +54,10 @@ public class SupabaseStorageServiceImpl implements StorageService {
                 bucketName +
                 "/" +
                 fileName;
+    }
+
+    @Override
+    public void deleteFile(String path) {
+        //Future impl for deteling a file from bucket
     }
 }

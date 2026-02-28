@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.andrei.springboot.service.StorageService;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class PostServiceImpl implements PostService {
     private final ProfileRepository profileRepository;
     private final StorageService storageService;
 
-    public PostServiceImpl(PostRepository postRepository, ProfileRepository profileRepository, StorageService storageService) {
+    public PostServiceImpl(PostRepository postRepository, ProfileRepository profileRepository, @Qualifier("storageService") StorageService storageService) {
         this.postRepository = postRepository;
         this.profileRepository = profileRepository;
         this.storageService = storageService;
@@ -186,4 +187,5 @@ public class PostServiceImpl implements PostService {
                 profile != null ? profile.getAvatarUrl() : null
         );
     }
+
 }
