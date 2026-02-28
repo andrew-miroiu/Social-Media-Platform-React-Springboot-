@@ -15,6 +15,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import org.imgscalr.Scalr;
+
 @Service("profilePictureStorageService")
 public class SupabaseProfilePictureStorageImpl implements StorageService {
 
@@ -45,7 +50,31 @@ public class SupabaseProfilePictureStorageImpl implements StorageService {
             throw new IllegalArgumentException("File is empty");
         }
 
-        String fileNmae = userId + "_" + System.currentTimeMillis();
+        BufferedImage originalImage = ImageIO.read(file.getInputStream());
+
+        int maxSize = 512;
+
+        BufferedImage resizedImage;
+
+        if (originalImage.getWidth() > maxSize || originalImage.getHeight() > maxSize) {
+
+            resizedImage = Scalr.resize(
+                    originalImage,
+                    Scalr.Method.QUALITY,
+                    Scalr.Mode.AUTOMATIC,
+                    maxSize,
+                    maxSize
+            );
+
+        } else {
+            resizedImage = originalImage;
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(resizedImage, "webp", baos);
+        byte[] webpBytes = baos.toByteArray();
+        
+        String fileNmae = userId + "_" + System.currentTimeMillis() + ".webp";
 
         HttpClient client = HttpClient.newHttpClient();
 
@@ -53,8 +82,8 @@ public class SupabaseProfilePictureStorageImpl implements StorageService {
                 .uri(URI.create(supabaseUrl + "/storage/v1/object/" + profilePicturesBucket + "/" + fileNmae))
                 .header("Authorization", "Bearer " + supabaseKey)
                 .header("apikey", supabaseKey)
-                .header("Content-Type", file.getContentType())
-                .PUT(HttpRequest.BodyPublishers.ofByteArray(file.getBytes()))
+                .header("Content-Type", "image/webp")
+                .PUT(HttpRequest.BodyPublishers.ofByteArray(webpBytes))
                 .build();
             
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
