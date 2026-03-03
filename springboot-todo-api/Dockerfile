@@ -1,5 +1,5 @@
-# Stage 1: Build the JAR with Maven
-FROM maven:3.9.1-eclipse-temurin-23-jdk AS build
+# Stage 1: Build JAR
+FROM maven:3.9.1-eclipse-temurin-23 AS build
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ COPY src ./src
 
 RUN mvn clean package -DskipTests
 
-# Stage 2: Final image cu JDK standard
+# Stage 2: Final image
 FROM eclipse-temurin:23-jdk
 
 WORKDIR /app
