@@ -1,25 +1,23 @@
 # Stage 1: Build the JAR with Maven
-FROM maven:3.9.1-eclipse-temurin-23 AS build
+FROM maven:3.9.1-eclipse-temurin-23-jdk AS build
 
 WORKDIR /app
 
-# Copiază pom.xml și codul sursă
+# Copiază pom.xml și sursele
 COPY pom.xml .
 COPY src ./src
 
-# Rulează Maven build (fără teste pentru viteză)
+# Build JAR fără teste
 RUN mvn clean package -DskipTests
 
-# Stage 2: Crează imaginea finală cu JDK Slim
+# Stage 2: Final image cu JDK slim
 FROM eclipse-temurin:23-jdk-slim
 
 WORKDIR /app
 
-# Copiază JAR-ul construit în etapa anterioară
+# Copiază JAR-ul construit
 COPY --from=build /app/target/springboot-0.0.1-SNAPSHOT.jar app.jar
 
-# Expune portul 8080
 EXPOSE 8080
 
-# Pornirea aplicației
 ENTRYPOINT ["java", "-jar", "app.jar"]
