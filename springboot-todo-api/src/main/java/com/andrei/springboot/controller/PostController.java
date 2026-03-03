@@ -26,12 +26,12 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping
+    @GetMapping("/posts-without-counts")
     public List<PostResponseDTO> getAllPosts() {
         return postService.getAllPosts();
     }
 
-    @GetMapping("/posts-with-counts")
+    @GetMapping()
     public List<PostWithCountsDTO> getPostsWithCounts() {
         return postService.getPostsWithCounts();
     }

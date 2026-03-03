@@ -1,6 +1,7 @@
 package com.andrei.springboot.repository;
 
 import com.andrei.springboot.model.Profile;
+import com.andrei.springboot.dto.ProfileResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,4 +22,25 @@ public interface ProfileRepository extends JpaRepository<Profile, UUID> {
     @Transactional
     @Query("UPDATE Profile p SET p.avatarUrl = :url WHERE p.id = :id")
     void updateAvatarUrl(@Param("id") UUID id, @Param("url") String url);
+
+    @Query("""
+        SELECT p.id, p.username, p.avatarUrl, p.createdAt,
+            CASE WHEN f.id IS NOT NULL THEN true ELSE false END AS following
+        FROM Profile p
+        LEFT JOIN Follow f
+            ON CAST(f.followingId AS uuid) = p.id 
+            AND CAST(f.followerId AS uuid) = :userId
+        WHERE p.id <> :userId
+        ORDER BY p.createdAt DESC
+    """)
+    List<Object[]> findAllProfilesWithFollowingRaw(@Param("userId") UUID userId);
+    
+    @Query("""
+        SELECT p.id, p.username, p.avatarUrl, p.createdAt,
+            (SELECT COUNT(f1) FROM Follow f1 WHERE CAST(f1.followingId AS uuid) = p.id),
+            (SELECT COUNT(f2) FROM Follow f2 WHERE CAST(f2.followerId AS uuid) = p.id)
+        FROM Profile p
+        WHERE p.id = :userId
+    """)
+    List<Object[]> findProfileWithFollowersAndFollowing(@Param("userId") UUID userId);
 }

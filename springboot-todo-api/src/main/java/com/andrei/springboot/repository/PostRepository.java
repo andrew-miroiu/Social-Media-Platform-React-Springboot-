@@ -51,4 +51,6 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
         nativeQuery = true
     )
     List<Object[]> findAllPostsWithCountsNative(@Param("userId") String userId);
+
+     List<Post> findByUserIdOrderByCreatedAtDesc(String userId);
 }

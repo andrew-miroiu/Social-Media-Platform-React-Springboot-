@@ -3,6 +3,7 @@ import { API_BASE_URL } from "../lib/apiConfig";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useParams, useNavigate } from "react-router-dom";
 import ProfileSkeleton from "../components/skeletons/profileSkeleton";
+import { getAuthToken } from '../lib/auth';
 
 
 interface ProfileProps {
@@ -11,22 +12,23 @@ interface ProfileProps {
 
 interface LoadedUser {
   id: string;
-  email?: string | null;
   username?: string | null;
-  full_name?: string | null;
+  avatarUrl?: string;
+  createdAt: string;
   followersCount?: string | null;
   followingCount?: string | null;
-  avatar_url?: string;
 }
 
 interface ProfilePosts{
   id:string;
-  username?: string;
-  user_id: string;
-  content?: string;
-  image_url?: string;
-  video_url?: string;
-  currentUserId: string;
+  text: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  username: string;
+  avatarUrl?: string;
 }
 
 export default function Profile({ currentUser }: ProfileProps) {
@@ -37,6 +39,7 @@ export default function Profile({ currentUser }: ProfileProps) {
   const [loading, setLoading] = useState(true);
 
   const { id } = useParams(); // user id din URL
+  const token = getAuthToken();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,14 +47,24 @@ export default function Profile({ currentUser }: ProfileProps) {
 
       if (!id) return;
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/profile/${id}`);
+      console.log("Loading profile for user ID:", id);
+      const res = await fetch(`${API_BASE_URL}/profiles/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
-      setLoadedUser(data.profile);
+      console.log(data);
+      setLoadedUser(data);
 
-      const resPosts = await fetch(`${API_BASE_URL}/posts/user/${id}`);
+      const resPosts = await fetch(`${API_BASE_URL}/posts/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const dataPosts = await resPosts.json();
-      console.log(dataPosts.posts);
-      setProfilePosts(dataPosts.posts);
+      console.log(dataPosts);
+      setProfilePosts(dataPosts);
       setLoading(false);
     }
     loadProfile();
@@ -65,11 +78,13 @@ export default function Profile({ currentUser }: ProfileProps) {
 
     setIsSubmitting(true);
     const formData = new FormData();
-    formData.append("avatar", avatarFile);
-    formData.append("userId", loadedUser.id);
+    formData.append("file", avatarFile);
 
-    await fetch(`${API_BASE_URL}/profile/updateProfilePicture`, {
-      method: "PUT",
+    await fetch(`${API_BASE_URL}/profiles/updateProfile`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: formData,
     });
 
@@ -93,8 +108,8 @@ export default function Profile({ currentUser }: ProfileProps) {
     
     {/* PROFILE PICTURE */}
     <div className="h-20 w-20 rounded-full bg-slate-200 overflow-hidden flex items-center justify-center">
-      {loadedUser.avatar_url ? (
-        <img src={loadedUser.avatar_url} alt="Avatar" />
+      {loadedUser.avatarUrl ? (
+        <img src={loadedUser.avatarUrl} alt="Avatar" />
       ) : (
         <span className="text-slate-500 text-sm">No Image</span>
       )}
@@ -104,7 +119,7 @@ export default function Profile({ currentUser }: ProfileProps) {
 
     <div>
       <h1 className="text-xl font-semibold">
-        {loadedUser.full_name || loadedUser.username}
+        {loadedUser.avatarUrl ? loadedUser.username : "No Username"}
       </h1>
       {//<p className="text-sm text-slate-600">{loadedUser.email}</p>
       }
@@ -169,17 +184,17 @@ export default function Profile({ currentUser }: ProfileProps) {
           onClick={() => navigate(`/post/${post.id}`)}
           className="w-full aspect-[3/4] bg-black overflow-hidden rounded-md cursor-pointer"
         >
-          {post.image_url && (
+          {post.imageUrl && (
             <img
-              src={post.image_url}
+              src={post.imageUrl}
               className="w-full h-full object-cover"
               alt=""
             />
           )}
 
-          {post.video_url && (
+          {post.videoUrl && (
             <video
-              src={post.video_url}
+              src={post.videoUrl}
               muted
               className="w-full h-full object-cover"
             />

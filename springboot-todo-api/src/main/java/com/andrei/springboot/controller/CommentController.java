@@ -3,7 +3,7 @@ package com.andrei.springboot.controller;
 import com.andrei.springboot.service.CommentService;
 import com.andrei.springboot.dto.CommentResponseDTO;
 import com.andrei.springboot.dto.CreateCommentRequestDTO;
-
+import com.andrei.springboot.dto.CommentResponseWithUsernameDTO;
 
 import jakarta.validation.Valid;
 
@@ -28,7 +28,7 @@ public class CommentController {
     } 
 
     @GetMapping("/post/{postId}")
-    public List<CommentResponseDTO> getCommentsByPostId(@PathVariable UUID postId){
+    public List<CommentResponseWithUsernameDTO> getCommentsByPostId(@PathVariable UUID postId){
         return commentService.getCommentsByPostId(postId);
     }
 

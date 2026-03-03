@@ -34,6 +34,16 @@ public class ConversationServiceImpl implements ConversationService {
             );
         }
 
+        Optional<Conversation> conversationExistsReverse = conversationRepository.findByParticipant1IdAndParticipant2Id(participantId, userId);
+        if(conversationExistsReverse.isPresent()) {
+            return new ConversationResponseDTO(
+                conversationExistsReverse.get().getId(), 
+                conversationExistsReverse.get().getParticipant1Id(), 
+                conversationExistsReverse.get().getParticipant2Id(),
+                conversationExistsReverse.get().getCreatedAt()
+            );
+        }
+
         Conversation conversation = new Conversation(userId, participantId);
         Conversation savedConversation = conversationRepository.save(conversation);
 

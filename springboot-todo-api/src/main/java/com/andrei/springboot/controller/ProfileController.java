@@ -6,9 +6,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.andrei.springboot.dto.ProfileResponseDTO;
 import com.andrei.springboot.service.ProfileService;
+import com.andrei.springboot.dto.ProfileResponseWithFollowsDTO;
+import com.andrei.springboot.dto.ProfilePageDTO;
 
 import java.util.*;
 
@@ -23,8 +26,13 @@ public class ProfileController {
     }
 
     @GetMapping
-    public List<ProfileResponseDTO> getAllProfiles(){
+    public List<ProfileResponseWithFollowsDTO> getAllProfiles(){
         return profileService.getAllProfiles();
+    }
+
+    @GetMapping("/{id}")
+    public ProfilePageDTO getProfileById(@PathVariable UUID id){
+        return profileService.getProfileById(id);
     }
 
     @GetMapping("/getOwnProfile")

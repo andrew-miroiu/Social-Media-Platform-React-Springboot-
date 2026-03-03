@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "../lib/apiConfig";
 import { useNavigate } from "react-router-dom";
+import { getAuthToken } from '../lib/auth';
 
 interface SearchUser {
   id: string;
-  email: string;
-  user_metadata: {
-    full_name?: string;
-    avatar_url?: string;
-  };
+  username: string;
+  avatar_url?: string | null;
+  createdAt: string;
   following: boolean;
 }
 
@@ -17,10 +16,17 @@ export default function Search({ currentUserId }: { currentUserId: string }) {
   const [searchedUsername, setSearchedUsername] = useState<string>("");
 
   const navigate = useNavigate();
+  const token = getAuthToken();
 
   useEffect(() => {
     async function getUsers() {
-      const res = await fetch(`${API_BASE_URL}/users/${currentUserId}`);
+      const res = await fetch(`${API_BASE_URL}/profiles`,
+      {
+        headers: {
+          Authorization : `Bearer ${token}`,
+        },
+
+      });
       const data = await res.json();
 
       const filtered = data.filter((u: SearchUser) => u.id !== currentUserId);
@@ -30,15 +36,12 @@ export default function Search({ currentUserId }: { currentUserId: string }) {
   }, []);
 
   const handleFollow = async (followingId: string) => {
-    const res = await fetch(`${API_BASE_URL}/follow/follow`, {
+    const res = await fetch(`${API_BASE_URL}/follow/${followingId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization : `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        follower_id: currentUserId,
-        following_id: followingId,
-      }),
     });
 
     setUsers(prev =>
@@ -51,15 +54,12 @@ export default function Search({ currentUserId }: { currentUserId: string }) {
   };
 
   const handleUnfollow = async (followingId: string) => {
-    await fetch(`${API_BASE_URL}/follow/unfollow`, {
+    await fetch(`${API_BASE_URL}/follow/${followingId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        Authorization : `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        follower_id: currentUserId,
-        following_id: followingId,
-      }),
     });
 
     setUsers(prev =>
@@ -70,7 +70,7 @@ export default function Search({ currentUserId }: { currentUserId: string }) {
   };
 
   const filteredUsers = users.filter(user =>
-    user.user_metadata.full_name?.toLowerCase().includes(searchedUsername.toLowerCase())
+    user.username.toLowerCase().includes(searchedUsername.toLowerCase())
   );
 
   return (
@@ -94,11 +94,11 @@ export default function Search({ currentUserId }: { currentUserId: string }) {
           >
             <div onClick={() => navigate(`/profile/${user.id}`)}>
               <p className="font-semibold text-slate-800">
-                {user.user_metadata.full_name || "(no name)"}
+                {user.username || "(no name)"}
               </p>
             </div>
 
-            <button
+            { <button
               onClick={() =>
                 user.following ? handleUnfollow(user.id) : handleFollow(user.id)
               }
@@ -109,7 +109,7 @@ export default function Search({ currentUserId }: { currentUserId: string }) {
               }
             >
               {user.following ? "Unfollow" : "Follow"}
-            </button>
+            </button> }
 
           </div>
         ))}

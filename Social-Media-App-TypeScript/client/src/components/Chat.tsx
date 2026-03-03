@@ -1,20 +1,24 @@
 import React, {useState, useEffect, useRef} from "react";
 import { supabase } from "../lib/supabaseClient";
 import { API_BASE_URL } from "../lib/apiConfig";
+import { getAuthToken } from '../lib/auth';
 
 interface Message{
   id: string;
-  conversation_id: string;
-  sender_id: string;
+  conversationId: string;
+  senderId: string;
   content: string;
-  created_at: string;
+  createdAt: string;
 }
+
 
 export default function Chat({currentUserId, conversation_id} : {currentUserId: string; conversation_id: string}) {
   const [messageContent, setMessageContent] = useState<string>("")
   const [messages, setMessages] = useState<Message[]>([])
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const token = getAuthToken();
 
   useEffect(() => {
     if (!conversation_id) return;
@@ -30,15 +34,29 @@ export default function Chat({currentUserId, conversation_id} : {currentUserId: 
           filter: `conversation_id=eq.${conversation_id}`
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
+          const newMessage = payload.new;
+
+          const mappedMessage: Message = {
+            id: newMessage.id,
+            conversationId: newMessage.conversation_id,
+            senderId: newMessage.sender_id,
+            content: newMessage.content,
+            createdAt: newMessage.created_at,
+          };
+
+          setMessages((prev) => [...prev, mappedMessage]);
         }
       )
       .subscribe();
 
     const loadMessages = async () => {
-      const res = await fetch(`${API_BASE_URL}/messages/getMessages/${conversation_id}`);
+      const res = await fetch(`${API_BASE_URL}/messages/conversation/${conversation_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
       const data = await res.json();
-      setMessages(data.messages);
+      setMessages(data);
     }
     
     loadMessages();
@@ -56,14 +74,13 @@ export default function Chat({currentUserId, conversation_id} : {currentUserId: 
     e.preventDefault();
     if (!messageContent.trim()) return;
 
-    await fetch(`${API_BASE_URL}/messages/sendMessage`, {
+    await fetch(`${API_BASE_URL}/messages/conversation/${conversation_id}`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        conversation_id: conversation_id,
-        sender_id: currentUserId,
         content: messageContent
       })
     });
@@ -97,7 +114,7 @@ export default function Chat({currentUserId, conversation_id} : {currentUserId: 
         ) : (
           <>
             {messages.map((message) => {
-              const isMe = message.sender_id === currentUserId;
+              const isMe = message.senderId === currentUserId;
               return (
                 <div key={message.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[75%] sm:max-w-xs p-3 rounded-xl text-sm 
@@ -106,7 +123,7 @@ export default function Chat({currentUserId, conversation_id} : {currentUserId: 
                   >
                     <p className="break-words">{message.content}</p>
                     <p className={`text-[10px] mt-1 opacity-70 ${isMe ? "text-indigo-100" : "text-slate-700"}`}>
-                      {new Date(message.created_at).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}
+                      {new Date(message.createdAt).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}
                     </p>
                   </div>
                 </div>

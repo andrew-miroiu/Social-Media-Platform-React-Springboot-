@@ -1,11 +1,13 @@
 import React, {useState} from "react";
 import { API_BASE_URL } from "../lib/apiConfig";
 import ClipLoader from "react-spinners/ClipLoader";
+import { getAuthToken } from '../lib/auth';
 
-export default function CommentForm({post_id, user_id, refreshComments} : {post_id: string; user_id: string; refreshComments:() => Promise<void>;}) {
+export default function CommentForm({post_id, refreshComments} : {post_id: string; refreshComments:() => Promise<void>;}) {
     
     const [text, setText] = useState<string>("");
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const token = getAuthToken();
 
     const handleCommentPost = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -14,12 +16,12 @@ export default function CommentForm({post_id, user_id, refreshComments} : {post_
         await fetch(`${API_BASE_URL}/comments/postComment`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json", 
+                Authorization : `Bearer ${token}`,
                 },
             body: JSON.stringify({
-                post_id: post_id,
-                user_id: user_id,
-                content: text
+                postId: post_id,
+                text: text
             })
         });
 

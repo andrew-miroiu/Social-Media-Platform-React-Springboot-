@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { API_BASE_URL } from "../lib/apiConfig";
 import ClipLoader from "react-spinners/ClipLoader";
+import { getAuthToken } from '../lib/auth';
 
 export default function PostForm() {
   const [content, setContent] = useState("");
@@ -10,7 +11,7 @@ export default function PostForm() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  
+  const token = getAuthToken();
 
   // Get logged-in user
   useEffect(() => {
@@ -51,12 +52,14 @@ export default function PostForm() {
     setIsSubmitting(true);
 
     const formData = new FormData();
-    formData.append("content", content);
-    formData.append("user_id", userId);
     if (file) formData.append("file", file);
+    formData.append("content", content);
 
     const res = await fetch(`${API_BASE_URL}/posts`, {
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: formData,
     });
 

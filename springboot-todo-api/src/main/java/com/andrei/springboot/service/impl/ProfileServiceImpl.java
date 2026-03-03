@@ -5,6 +5,8 @@ import com.andrei.springboot.service.ProfileService;
 import com.andrei.springboot.security.CustomUserDetails;
 import com.andrei.springboot.repository.ProfileRepository;
 import com.andrei.springboot.dto.ProfileResponseDTO;
+import com.andrei.springboot.dto.ProfileResponseWithFollowsDTO;
+import com.andrei.springboot.dto.ProfilePageDTO;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.andrei.springboot.service.StorageService;
@@ -12,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.*;
+import java.time.LocalDateTime;
 
 @Service
 public class ProfileServiceImpl implements ProfileService {
@@ -25,23 +28,43 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public List<ProfileResponseDTO> getAllProfiles(){
+    public List<ProfileResponseWithFollowsDTO> getAllProfiles(){
         CustomUserDetails userDetails =(CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         UUID userId = userDetails.getId();
 
-        List<Profile> profiles = profileRepository.findByIdNotOrderByCreatedAtDesc(userId);
+        List<Object[]> rawProfiles = profileRepository.findAllProfilesWithFollowingRaw(userId);
 
-        return profiles.stream()
-                .map(profile -> new ProfileResponseDTO(
-                    profile.getId(),
-                    profile.getUsername(),
-                    profile.getAvatarUrl(),
-                    profile.getCreatedAt()
+        return rawProfiles.stream()
+                .map(row -> new ProfileResponseWithFollowsDTO(
+                        (UUID) row[0],
+                        (String) row[1],
+                        (String) row[2],
+                        (LocalDateTime) row[3],
+                        (Boolean) row[4]
                 ))
-                .toList();       
+                .toList();      
+    }
 
+    @Override
+    public ProfilePageDTO getProfileById(UUID id) {
 
+        List<Object[]> result = profileRepository.findProfileWithFollowersAndFollowing(id);
+
+        if (result.isEmpty()) {
+            throw new NoSuchElementException("Profile not found");
+        }
+
+        Object[] profile = result.get(0);
+
+        return new ProfilePageDTO(
+                (UUID) profile[0],
+                (String) profile[1],
+                (String) profile[2],
+                (LocalDateTime) profile[3],
+                String.valueOf(((Number) profile[4]).longValue()),
+                String.valueOf(((Number) profile[5]).longValue())
+        );
     }
 
     @Override

@@ -2,34 +2,37 @@ import React from "react";
 import PostForm from "../components/PostForm";
 import Post from "../components/Post";
 import { API_BASE_URL } from "../lib/apiConfig";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 import FeedSkeleton from "../components/skeletons/FeedSkeleton";
+import { getAuthToken } from '../lib/auth';
 
 
 
 export default function Feed({ currentUserId } : {currentUserId: string;}) {
 
-    const [posts, setPosts] = React.useState<Array<{id: string; username: string; user_id: string; text: string; image_url?: string; video_url?: string}>>([]);
+    const [posts, setPosts] = React.useState<Array<{postId: string; text: string; imageUrl?: string | null; videoUrl?: string | null; userId: string; username: string; likeCount: number; commentCount: number; liked: boolean}>>([]);
     const [loading, setLoading] = React.useState(true);
+
+    const token = getAuthToken();
 
     React.useEffect(() => {
         // Fetch posts from the backend
-        fetch(`${API_BASE_URL}/posts`)
+        fetch(`${API_BASE_URL}/posts`, {
+          headers: {
+            Authorization : `Bearer ${token}`,
+          },
+        })
             .then((res) => res.json())
-            .then((data) => { 
-                if (data.success) {
-                    setPosts(data.posts);
-                }
-            })
+            .then((data) => { setPosts(data); })
             .finally(() => setLoading(false))
             .catch((err) => console.error("Error fetching posts:", err));
     }, []);
 
-    const navigate = useNavigate();
+   /* const navigate = useNavigate();
 
-    const openProfile = (userId: string) => {
+     const openProfile = (userId: string) => {
       navigate(`/profile/${userId}`);
-    };
+    }; */
 
     if (loading) {
       return <FeedSkeleton />;
@@ -43,14 +46,16 @@ export default function Feed({ currentUserId } : {currentUserId: string;}) {
       {posts.map((post, index) => (
         <Post 
           key={index}
-          post_id={post.id}
+          postId={post.postId}
+          text={post.text}
+          imageUrl={post.imageUrl}
+          videoUrl={post.videoUrl}
+          userId={post.userId}
           username={post.username}
-          user_id={post.user_id}
-          content={post.text}
-          image_url={post.image_url}
-          video_url={post.video_url}
+          likeCount={post.likeCount} 
+          commentCount={post.commentCount} 
+          liked={post.liked} 
           currentUserId={currentUserId}
-          onOpenProfile={openProfile}
         />
       ))}
 

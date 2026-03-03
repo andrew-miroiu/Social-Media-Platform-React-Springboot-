@@ -73,7 +73,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostResponseDTO> getPostsByUser(String id){
-        List<Post> posts = postRepository.findByUserId(id);
+        //order by createdAt desc in repository
+        List<Post> posts = postRepository.findByUserIdOrderByCreatedAtDesc(id);
         List<PostResponseDTO> response = new ArrayList<>();
         Profile profile = null;
 
