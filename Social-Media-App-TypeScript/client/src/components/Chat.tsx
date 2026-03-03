@@ -73,6 +73,8 @@ export default function Chat({currentUserId, conversation_id} : {currentUserId: 
   const handleSend = async (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault();
     if (!messageContent.trim()) return;
+    const message = messageContent;
+    setMessageContent("");
 
     await fetch(`${API_BASE_URL}/messages/conversation/${conversation_id}`, {
       method: "POST",
@@ -81,7 +83,7 @@ export default function Chat({currentUserId, conversation_id} : {currentUserId: 
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        content: messageContent
+        content: message
       })
     });
     
