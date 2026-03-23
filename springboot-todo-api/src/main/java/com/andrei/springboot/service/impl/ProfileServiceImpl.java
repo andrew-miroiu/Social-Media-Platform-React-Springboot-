@@ -6,6 +6,7 @@ import com.andrei.springboot.security.CustomUserDetails;
 import com.andrei.springboot.repository.ProfileRepository;
 import com.andrei.springboot.dto.ProfileResponseDTO;
 import com.andrei.springboot.dto.ProfileResponseWithFollowsDTO;
+import com.andrei.springboot.exception.ResourceNotFoundException;
 import com.andrei.springboot.dto.ProfilePageDTO;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -50,9 +51,8 @@ public class ProfileServiceImpl implements ProfileService {
     public ProfilePageDTO getProfileById(UUID id) {
 
         List<Object[]> result = profileRepository.findProfileWithFollowersAndFollowing(id);
-
-        if (result.isEmpty()) {
-            throw new NoSuchElementException("Profile not found");
+        if(result.isEmpty()){
+            throw new ResourceNotFoundException("Profile with id: " + id + "not found");
         }
 
         Object[] profile = result.get(0);
