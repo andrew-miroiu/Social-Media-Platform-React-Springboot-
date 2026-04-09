@@ -22,4 +22,3 @@ jobs:
       - name: Run tests
         working-directory: ./springboot-todo-api
         run: mvn test
-        
