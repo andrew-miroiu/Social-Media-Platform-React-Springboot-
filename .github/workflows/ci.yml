@@ -18,6 +18,12 @@ jobs:
           java-version: '23'
           distribution: 'temurin'
 
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+
       - name: Run tests
         working-directory: ./springboot-todo-api
         run: mvn test
@@ -29,4 +35,3 @@ jobs:
     steps:
       - name: Deploy to Render
         run: curl ${{ secrets.RENDER_DEPLOY_HOOK }}
-        
