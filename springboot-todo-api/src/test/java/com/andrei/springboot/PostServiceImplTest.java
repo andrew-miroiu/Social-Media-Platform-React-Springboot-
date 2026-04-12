@@ -99,5 +99,4 @@ class PostServiceImplTest {
         assertEquals("Hello world", result.get(0).getText());
         assertEquals("Unknown", result.get(0).getUsername());
     }
-
 }
