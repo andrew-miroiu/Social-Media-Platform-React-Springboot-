@@ -32,8 +32,8 @@ public class PostController {
     }
 
     @GetMapping()
-    public List<PostWithCountsDTO> getPostsWithCounts() {
-        return postService.getPostsWithCounts();
+    public List<PostWithCountsDTO> getPostsWithCounts(@RequestParam(defaultValue = "0") int offset, @RequestParam(defaultValue = "10") int limit) {
+        return postService.getPostsWithCounts(offset, limit);
     }
 
     @GetMapping("/{id}")

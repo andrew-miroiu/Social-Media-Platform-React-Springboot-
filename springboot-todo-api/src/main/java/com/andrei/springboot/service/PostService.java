@@ -12,7 +12,7 @@ public interface PostService {
     
     List<PostResponseDTO> getAllPosts();
     List<PostResponseDTO> getPostsByUser(String id);
-    List<PostWithCountsDTO> getPostsWithCounts();
+    List<PostWithCountsDTO> getPostsWithCounts(int offset, int limit);
     PostResponseDTO createPost(String content, MultipartFile file) throws Exception;
 
 }

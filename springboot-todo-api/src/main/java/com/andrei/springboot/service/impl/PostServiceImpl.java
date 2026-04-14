@@ -108,13 +108,13 @@ public class PostServiceImpl implements PostService {
     }
 
    @Override
-    public List<PostWithCountsDTO> getPostsWithCounts() {
+    public List<PostWithCountsDTO> getPostsWithCounts(int offset, int limit) {
 
         CustomUserDetails userDetails =(CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         String userId = userDetails.getId().toString();
         
-        List<Object[]> results = postRepository.findAllPostsWithCountsNative(userId);
+        List<Object[]> results = postRepository.findAllPostsWithCountsNative(userId, offset, limit);
         List<PostWithCountsDTO> dtos = new ArrayList<>();
 
         for (Object[] row : results) {

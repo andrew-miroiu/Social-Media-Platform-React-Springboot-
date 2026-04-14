@@ -47,10 +47,13 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
                 ON pr.id::text = p.user_id
 
             ORDER BY p.created_at DESC
+
+            OFFSET :offset
+            LIMIT :limit
             """,
         nativeQuery = true
     )
-    List<Object[]> findAllPostsWithCountsNative(@Param("userId") String userId);
+    List<Object[]> findAllPostsWithCountsNative(@Param("userId") String userId, @Param("offset") int offset, @Param("limit") int limit);
 
      List<Post> findByUserIdOrderByCreatedAtDesc(String userId);
 }
